@@ -1,44 +1,43 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# ============================================================
+# FRONTEND (Angular)
+# ============================================================
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+# Dependencias npm — nunca se suben al repo
+frontend/node_modules/
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# Build de producción generado por ng build
+frontend/dist/
 
-# IDEs and editors
+# Caché interna de Angular CLI (generada por ng serve/build)
+frontend/.angular/
+
+# Raíz — por si acaso
+.angular/
 .idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+node_modules/
 
-# Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/mcp.json
-.history/*
+# ============================================================
+# BACKEND (Spring Boot / Maven)
+# ============================================================
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
+# Intellij IDEA project files
+.idea/
+*.iml
 
-# System files
-.DS_Store
-Thumbs.db
+# Directorio de compilación de Maven
+backend/target/
+
+# Artefactos compilados Java
+backend/**/*.class
+backend/**/*.jar
+backend/**/*.war
+
+# Variables de entorno locales
+backend/.env
+
+# Configuraciones con credenciales reales — NUNCA al repo
+# Usa application-dev.example.yml como plantilla sin valores reales
+backend/src/main/resources/application-dev.yml
+backend/src/main/resources/application-prod.yml
+
+#
