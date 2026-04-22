@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloudrower
+    username: TU_USUARIO
+    password: TU_PASSWORD
+
+app:
+  jwt:
+    secret: TU_CLAVE_SECRETA_MINIMO_32_CARACTERES
