@@ -1,0 +1,73 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
+
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900">CloudRower</h1>
+      <p class="mt-2 text-gray-500">Inicia sesión en tu cuenta</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+      <div class="mb-5">
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
+                 transition-colors duration-200"
+          [class.border-red-400]="loginControls['email'].invalid && loginControls['email'].touched"
+          [class.border-gray-300]="!(loginControls['email'].invalid && loginControls['email'].touched)"
+        />
+        @if (loginControls['email'].invalid && loginControls['email'].touched) {
+          <p class="mt-1 text-xs text-red-500">
+            @if (loginControls['email'].hasError('required')) { El email es obligatorio. }
+            @if (loginControls['email'].hasError('email')) { Introduce un email válido. }
+          </p>
+        }
+      </div>
+
+      <div class="mb-6">
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+          Contraseña
+        </label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500
+                 transition-colors duration-200"
+          [class.border-red-400]="loginControls['password'].invalid && loginControls['password'].touched"
+          [class.border-gray-300]="!(loginControls['password'].invalid && loginControls['password'].touched)"
+        />
+        @if (loginControls['password'].invalid && loginControls['password'].touched) {
+          <p class="mt-1 text-xs text-red-500">
+            @if (loginControls['password'].hasError('required')) { La contraseña es obligatoria. }
+            @if (loginControls['password'].hasError('minlength')) { Mínimo 6 caracteres. }
+          </p>
+        }
+      </div>
+
+      @if (errorMessage) {
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-600">{{ errorMessage }}</p>
+        </div>
+      }
+
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300
+               text-white font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+      >
+        {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+      </button>
+
+    </form>
+  </div>
+</div>
