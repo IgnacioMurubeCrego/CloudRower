@@ -15,6 +15,7 @@ frontend/.angular/
 .angular/
 .idea/
 node_modules/
+.claude/
 
 # ============================================================
 # BACKEND (Spring Boot / Maven)
