@@ -22,9 +22,11 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-cloudrower}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-cloudrower}
       JWT_SECRET: ${JWT_SECRET:-changeme-use-a-strong-secret-in-production}
-      DOCKER_HOST: ${DOCKER_HOST:-unix:///var/run/docker.sock}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      SPRING_PROFILES_ACTIVE: prod
+      DOCKER_HOST: tcp://host.docker.internal:2375
+      ALLOWED_ORIGINS: http://localhost
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy
