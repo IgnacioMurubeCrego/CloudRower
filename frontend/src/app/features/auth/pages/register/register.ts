@@ -4,6 +4,16 @@ import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, Validati
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
+function passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
+  const value: string = control.value ?? '';
+  const errors: Record<string, boolean> = {};
+  if (value.length < 8)              errors['minLength'] = true;
+  if (!/[A-Z]/.test(value))          errors['noUppercase'] = true;
+  if (!/[0-9]/.test(value))          errors['noNumber'] = true;
+  if (!/[^A-Za-z0-9]/.test(value))   errors['noSpecial'] = true;
+  return Object.keys(errors).length ? errors : null;
+}
+
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
   const confirm = control.get('confirmPassword')?.value;
@@ -21,7 +31,7 @@ export class RegisterComponent {
   form = inject(FormBuilder).group({
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, passwordStrengthValidator]],
     confirmPassword: ['', Validators.required],
   }, { validators: passwordMatchValidator });
 

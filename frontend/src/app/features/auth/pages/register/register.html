@@ -56,10 +56,13 @@
           [class.border-gray-300]="!(c['password'].invalid && c['password'].touched)"
         />
         @if (c['password'].invalid && c['password'].touched) {
-          <p class="mt-1 text-xs text-red-500">
-            @if (c['password'].hasError('required')) { La contraseña es obligatoria. }
-            @if (c['password'].hasError('minlength')) { Mínimo 6 caracteres. }
-          </p>
+          <ul class="mt-1 text-xs text-red-500 space-y-0.5 list-disc list-inside">
+            @if (c['password'].hasError('required')) { <li>La contraseña es obligatoria.</li> }
+            @if (c['password'].hasError('minLength')) { <li>Mínimo 8 caracteres.</li> }
+            @if (c['password'].hasError('noUppercase')) { <li>Debe contener al menos una mayúscula.</li> }
+            @if (c['password'].hasError('noNumber')) { <li>Debe contener al menos un número.</li> }
+            @if (c['password'].hasError('noSpecial')) { <li>Debe contener al menos un carácter especial.</li> }
+          </ul>
         }
       </div>
 
