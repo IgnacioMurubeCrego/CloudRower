@@ -36,9 +36,8 @@ backend/**/*.war
 # Variables de entorno locales
 backend/.env
 
-# Configuraciones con credenciales reales — NUNCA al repo
+# Configuración local con credenciales reales — NUNCA al repo
 # Usa application-dev.example.yml como plantilla sin valores reales
 backend/src/main/resources/application-dev.yml
-backend/src/main/resources/application-prod.yml
 
 #
