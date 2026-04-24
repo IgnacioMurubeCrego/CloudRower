@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,11 +51,19 @@ public class AuthController {
         ));
     }
 
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$");
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
         String name = body.get("name");
+
+        if (password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
+            return ResponseEntity.status(400).body(Map.of("message",
+                    "La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un carácter especial"));
+        }
 
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.status(409)
