@@ -1,0 +1,84 @@
+<div class="flex h-screen bg-gray-50">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+
+    <div class="px-6 py-5 border-b border-gray-100">
+      <span class="text-xl font-bold text-blue-600">CloudRower</span>
+      <p class="text-xs text-gray-400 mt-1">Container Management</p>
+    </div>
+
+    <nav class="flex-1 px-4 py-6 space-y-1">
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="bg-blue-50 text-blue-700 font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Inicio
+      </a>
+
+      <a
+        routerLink="/dashboard/containers"
+        routerLinkActive="bg-blue-50 text-blue-700 font-medium"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        Contenedores
+      </a>
+
+      <a
+        routerLink="/dashboard/deploy"
+        routerLinkActive="bg-blue-50 text-blue-700 font-medium"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors text-sm"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 4v16m8-8H4"/>
+        </svg>
+        Desplegar
+      </a>
+    </nav>
+
+    <!-- User info at bottom -->
+    <div class="px-4 py-4 border-t border-gray-100">
+      @if (currentUser) {
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <span class="text-blue-600 text-xs font-bold">
+              {{ (currentUser.name || currentUser.email).charAt(0).toUpperCase() }}
+            </span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-800 truncate">{{ currentUser.name || 'Usuario' }}</p>
+            <p class="text-xs text-gray-400 truncate">{{ currentUser.email }}</p>
+          </div>
+        </div>
+      }
+      <button
+        (click)="logout()"
+        class="w-full text-left text-sm px-3 py-2 text-gray-500 hover:text-red-600 hover:bg-red-50
+               rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 overflow-auto">
+    <router-outlet />
+  </main>
+
+</div>
