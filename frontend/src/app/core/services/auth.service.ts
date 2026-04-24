@@ -14,6 +14,16 @@ export class AuthService {
     if (stored) this.currentUserSubject.next(JSON.parse(stored));
   }
 
+  register(email: string, password: string, name: string) {
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, { email, password, name }).pipe(
+      tap(response => {
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        this.currentUserSubject.next(response.user);
+      })
+    );
+  }
+
   login(email: string, password: string) {
     return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, { email, password }).pipe(
       tap(response => {
