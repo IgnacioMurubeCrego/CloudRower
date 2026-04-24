@@ -58,6 +58,18 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Docker Java Client -->
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java</artifactId>
+			<version>3.3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.docker-java</groupId>
+			<artifactId>docker-java-transport-zerodep</artifactId>
+			<version>3.3.6</version>
+		</dependency>
+
 		<!-- JJWT - Generación y validación de tokens JWT -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
