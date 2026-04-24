@@ -53,19 +53,19 @@
         }
       </div>
 
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p class="text-sm text-red-600">{{ errorMessage }}</p>
+          <p class="text-sm text-red-600">{{ errorMessage() }}</p>
         </div>
       }
 
       <button
         type="submit"
-        [disabled]="isLoading"
+        [disabled]="isLoading()"
         class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300
                text-white font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
       >
-        {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+        {{ isLoading() ? 'Iniciando sesión...' : 'Iniciar sesión' }}
       </button>
 
     </form>

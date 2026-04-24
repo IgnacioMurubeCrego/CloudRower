@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,15 +17,14 @@ export class LoginComponent {
 
   loginForm: FormGroup;
 
-  isLoading = false;
+  isLoading = signal(false);
+  errorMessage = signal('');
 
-  errorMessage = '';
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
+  constructor() {
     this.loginForm = this.fb.group({
       email: ['', [
         Validators.required,
@@ -45,8 +44,8 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.invalid) return;
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     const { email, password } = this.loginForm.value;
 
@@ -55,8 +54,8 @@ export class LoginComponent {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Credenciales incorrectas. Inténtalo de nuevo.';
+        this.isLoading.set(false);
+        this.errorMessage.set(err.error?.message || 'Credenciales incorrectas. Inténtalo de nuevo.');
       }
     });
   }

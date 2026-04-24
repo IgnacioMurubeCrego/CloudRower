@@ -1,32 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/user.model';
+import { RouterModule } from '@angular/router';
+import { ContainerService } from '../../../../core/services/container.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.html'
 })
 export class HomeComponent implements OnInit {
 
-  currentUser: User | null = null;
+  totalContainers = signal(0);
+  runningContainers = signal(0);
+  stoppedContainers = signal(0);
+  loading = signal(true);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  private containerService = inject(ContainerService);
 
   ngOnInit(): void {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
+    this.containerService.listContainers().subscribe({
+      next: containers => {
+        const running = containers.filter(c => (c.status ?? '').toLowerCase().includes('up')).length;
+        this.totalContainers.set(containers.length);
+        this.runningContainers.set(running);
+        this.stoppedContainers.set(containers.length - running);
+        this.loading.set(false);
+      },
+      error: () => { this.loading.set(false); }
     });
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
   }
 }
