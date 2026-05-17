@@ -5,12 +5,14 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     show-sql: false
+    hibernate:
+      ddl-auto: update
 
 docker:
-  host: ${DOCKER_HOST:tcp://localhost:2375}
+  host: ${DOCKER_HOST:unix:///var/run/docker.sock}
 
 app:
   jwt:
     secret: ${JWT_SECRET}
 
-ALLOWED_ORIGINS: https://cloudrower-1.onrender.com
+ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:http://localhost}
