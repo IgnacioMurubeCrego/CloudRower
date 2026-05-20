@@ -1,0 +1,50 @@
+---
+- name: Deploy CloudRower to EC2
+  hosts: cloudrower
+  become: false
+
+  vars:
+    repo_dir: /home/ubuntu/CloudRower
+    branch: develop
+
+  tasks:
+
+    - name: Pull latest code from repository
+      git:
+        repo: https://github.com/IgnacioMurubeCrego/CloudRower.git
+        dest: "{{ repo_dir }}"
+        version: "{{ branch }}"
+        force: yes
+
+    - name: Stop existing containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_dir }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Build and start containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ repo_dir }}"
+        build: always
+        state: present
+      environment:
+        DB_USER: "{{ lookup('env', 'DB_USER') }}"
+        DB_PASSWORD: "{{ lookup('env', 'DB_PASSWORD') }}"
+        JWT_SECRET: "{{ lookup('env', 'JWT_SECRET') }}"
+        ALLOWED_ORIGINS: "{{ lookup('env', 'ALLOWED_ORIGINS') }}"
+
+    - name: Verify containers are running
+      community.docker.docker_container_info:
+        name: "{{ item }}"
+      register: container_info
+      loop:
+        - cloudrower-frontend-1
+        - cloudrower-backend-1
+        - cloudrower-db-1
+
+    - name: Show container status
+      debug:
+        msg: "{{ item.item }} — {{ 'running' if item.container.State.Running else 'NOT running' }}"
+      loop: "{{ container_info.results }}"
+      loop_control:
+        label: "{{ item.item }}"
