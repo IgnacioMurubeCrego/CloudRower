@@ -92,6 +92,7 @@ public class DockerService {
                             Arrays.stream(c.getPorts())
                             .filter(p -> p.getPublicPort() != null)
                             .map(p -> p.getPublicPort() + ":" + p.getPrivatePort())
+                            .distinct()
                             .collect(Collectors.toList()));
                     return info;
                 })
