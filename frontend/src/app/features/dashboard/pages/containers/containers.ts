@@ -50,4 +50,14 @@ export class ContainersComponent implements OnInit {
   isRunning(container: ContainerInfo): boolean {
     return (container.status ?? '').toLowerCase().includes('up');
   }
+
+  getAccessUrl(container: ContainerInfo): string | null {
+    if (!container.ports || container.ports.length === 0) return null;
+    const publicPort = parseInt(container.ports[0].split(':')[0], 10);
+    if (!publicPort) return null;
+    const hostname = window.location.hostname;
+    if (publicPort === 443) return `https://${hostname}`;
+    if (publicPort === 80) return `http://${hostname}`;
+    return `http://${hostname}:${publicPort}`;
+  }
 }
