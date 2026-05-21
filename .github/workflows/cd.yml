@@ -65,6 +65,11 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2_key.pem
           chmod 600 /tmp/ec2_key.pem
 
+      - name: Generate Ansible inventory
+        run: |
+          printf '[cloudrower]\ncloudrower-ec2 ansible_host=%s ansible_user=ubuntu ansible_ssh_private_key_file=/tmp/ec2_key.pem ansible_ssh_common_args='"'"'-o StrictHostKeyChecking=no'"'"'\n' \
+            "${{ secrets.EC2_HOST }}" > /tmp/inventory.ini
+
       - name: Run Ansible deploy playbook
         env:
           DB_USER: ${{ secrets.DB_USER }}
@@ -73,8 +78,7 @@ jobs:
           ALLOWED_ORIGINS: ${{ secrets.ALLOWED_ORIGINS }}
         run: |
           ansible-playbook ansible/deploy.yml \
-            -i ansible/inventory.ini \
-            --extra-vars "EC2_HOST=${{ secrets.EC2_HOST }} EC2_SSH_KEY_PATH=/tmp/ec2_key.pem"
+            -i /tmp/inventory.ini
 
       - name: Clean up SSH key
         if: always()
