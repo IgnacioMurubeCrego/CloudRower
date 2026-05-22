@@ -1,0 +1,95 @@
+<div class="p-8">
+
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Histórico de despliegues</h1>
+      <p class="text-gray-500 mt-1">Registro de todos los contenedores desplegados con su estado actual</p>
+    </div>
+    <button
+      (click)="load()"
+      class="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 text-sm
+             font-medium rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Actualizar
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6 text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+    @if (loading()) {
+      <div class="p-12 text-center">
+        <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <p class="text-gray-400 text-sm">Cargando histórico...</p>
+      </div>
+    } @else if (deployments().length === 0) {
+      <div class="p-12 text-center">
+        <svg class="w-12 h-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        <p class="text-gray-400 font-medium">Sin despliegues registrados</p>
+        <p class="text-gray-300 text-sm mt-1">Los despliegues futuros aparecerán aquí</p>
+      </div>
+    } @else {
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-100">
+          <tr>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contenedor</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Puertos</th>
+            <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Estado actual</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (dep of deployments(); track dep.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="text-gray-700 font-medium">{{ dep.deployedAt | date:'dd/MM/yyyy' }}</span>
+                <span class="block text-xs text-gray-400">{{ dep.deployedAt | date:'HH:mm:ss' }}</span>
+              </td>
+              <td class="px-6 py-4 max-w-[160px]">
+                <span class="font-mono text-gray-800 font-medium block truncate" [title]="dep.containerName || dep.containerId">
+                  {{ dep.containerName || dep.containerId }}
+                </span>
+                <span class="font-mono text-xs text-gray-400">{{ dep.containerId }}</span>
+              </td>
+              <td class="px-6 py-4 max-w-[200px]">
+                <span class="text-gray-600 block truncate" [title]="dep.image">{{ dep.image }}</span>
+              </td>
+              <td class="px-6 py-4">
+                @if (dep.ports && dep.ports.length > 0) {
+                  <div class="flex flex-wrap gap-1">
+                    @for (port of dep.ports; track port) {
+                      <span class="font-mono text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{{ port }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-gray-300 text-xs">—</span>
+                }
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full"
+                      [ngClass]="statusClass(dep.currentStatus)">
+                  <span class="w-1.5 h-1.5 rounded-full" [ngClass]="statusDot(dep.currentStatus)"></span>
+                  {{ statusLabel(dep.currentStatus) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+</div>

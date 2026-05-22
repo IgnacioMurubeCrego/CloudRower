@@ -2,6 +2,9 @@ package com.cloudrower.api.service;
 
 import com.cloudrower.api.dto.ContainerInfo;
 import com.cloudrower.api.dto.ContainerRequest;
+import com.cloudrower.api.dto.DeploymentDto;
+import com.cloudrower.api.model.DeploymentRecord;
+import com.cloudrower.api.repository.DeploymentRepository;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -14,6 +17,7 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,8 +25,11 @@ import java.util.stream.Collectors;
 public class DockerService {
 
     private final DockerClient dockerClient;
+    private final DeploymentRepository deploymentRepository;
 
-    public DockerService(@Value("${docker.host:tcp://localhost:2375}") String dockerHost) {
+    public DockerService(@Value("${docker.host:tcp://localhost:2375}") String dockerHost,
+                         DeploymentRepository deploymentRepository) {
+        this.deploymentRepository = deploymentRepository;
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost(dockerHost)
                 .build();
@@ -71,7 +78,42 @@ public class DockerService {
         CreateContainerResponse container = cmd.exec();
         dockerClient.startContainerCmd(container.getId()).exec();
 
-        return inspectToInfo(container.getId());
+        ContainerInfo info = inspectToInfo(container.getId());
+
+        String portsStr = request.getPorts() == null ? "" : String.join(",", request.getPorts());
+        deploymentRepository.save(new DeploymentRecord(
+                info.getId(),
+                info.getName(),
+                info.getImage(),
+                portsStr,
+                LocalDateTime.now()
+        ));
+
+        return info;
+    }
+
+    public List<DeploymentDto> listDeployments() {
+        Map<String, String> liveStatus = new HashMap<>();
+        try {
+            dockerClient.listContainersCmd().withShowAll(true).exec()
+                    .forEach(c -> liveStatus.put(c.getId().substring(0, 12), c.getStatus()));
+        } catch (Exception ignored) {}
+
+        return deploymentRepository.findAllByOrderByDeployedAtDesc().stream()
+                .map(record -> {
+                    DeploymentDto dto = new DeploymentDto();
+                    dto.setId(record.getId());
+                    dto.setContainerId(record.getContainerId());
+                    dto.setContainerName(record.getContainerName());
+                    dto.setImage(record.getImage());
+                    dto.setPorts(record.getPorts() == null || record.getPorts().isBlank()
+                            ? Collections.emptyList()
+                            : Arrays.asList(record.getPorts().split(",")));
+                    dto.setDeployedAt(record.getDeployedAt());
+                    dto.setCurrentStatus(liveStatus.getOrDefault(record.getContainerId(), null));
+                    return dto;
+                })
+                .toList();
     }
 
     public List<ContainerInfo> listContainers() {

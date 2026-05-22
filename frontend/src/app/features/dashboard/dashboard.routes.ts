@@ -3,6 +3,7 @@ import { DashboardLayoutComponent } from './layout/dashboard-layout';
 import { HomeComponent } from './pages/home/home';
 import { ContainersComponent } from './pages/containers/containers';
 import { DeployComponent } from './pages/deploy/deploy';
+import { HistoryComponent } from './pages/history/history';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
@@ -11,7 +12,8 @@ export const DASHBOARD_ROUTES: Routes = [
     children: [
       { path: '', component: HomeComponent },
       { path: 'containers', component: ContainersComponent },
-      { path: 'deploy', component: DeployComponent }
+      { path: 'deploy', component: DeployComponent },
+      { path: 'history', component: HistoryComponent }
     ]
   }
 ];
