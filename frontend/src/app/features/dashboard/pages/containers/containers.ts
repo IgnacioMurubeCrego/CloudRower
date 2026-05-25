@@ -1,8 +1,11 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ContainerService } from '../../../../core/services/container.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { ContainerInfo } from '../../../../core/models/container.model';
+
+const SYSTEM_PREFIX = 'cloudrower-';
 
 @Component({
   selector: 'app-containers',
@@ -18,6 +21,12 @@ export class ContainersComponent implements OnInit {
   errorMessage = signal<string | null>(null);
 
   private containerService = inject(ContainerService);
+  private authService = inject(AuthService);
+
+  visibleContainers = computed(() => {
+    if (this.authService.isAdmin()) return this.containers();
+    return this.containers().filter(c => !c.name.startsWith(SYSTEM_PREFIX));
+  });
 
   ngOnInit(): void {
     this.load();

@@ -43,7 +43,7 @@ public class AuthController {
         UserEntity userEntity = userOpt.get();
         String token = jwtService.generateToken(email);
 
-        User userDto = new User(userEntity.getId(), userEntity.getEmail(), userEntity.getName());
+        User userDto = new User(userEntity.getId(), userEntity.getEmail(), userEntity.getName(), userEntity.getRole());
 
         return ResponseEntity.ok(Map.of(
                 "token", token,
@@ -70,11 +70,12 @@ public class AuthController {
                     .body(Map.of("message", "El email ya está registrado"));
         }
 
-        UserEntity newUser = new UserEntity(email, passwordEncoder.encode(password), name);
+        String role = userRepository.count() == 0 ? "ADMIN" : "USER";
+        UserEntity newUser = new UserEntity(email, passwordEncoder.encode(password), name, role);
         userRepository.save(newUser);
 
         String token = jwtService.generateToken(email);
-        User userDto = new User(newUser.getId(), newUser.getEmail(), newUser.getName());
+        User userDto = new User(newUser.getId(), newUser.getEmail(), newUser.getName(), newUser.getRole());
 
         return ResponseEntity.status(201).body(Map.of(
                 "token", token,
