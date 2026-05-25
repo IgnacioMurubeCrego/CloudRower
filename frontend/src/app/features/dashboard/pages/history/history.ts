@@ -1,7 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { DeploymentService } from '../../../../core/services/deployment.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { DeploymentRecord } from '../../../../core/models/deployment.model';
+
+const SYSTEM_PREFIX = 'cloudrower-';
 
 @Component({
   selector: 'app-history',
@@ -16,6 +19,12 @@ export class HistoryComponent implements OnInit {
   errorMessage = signal<string | null>(null);
 
   private deploymentService = inject(DeploymentService);
+  private authService = inject(AuthService);
+
+  visibleDeployments = computed(() => {
+    if (this.authService.isAdmin()) return this.deployments();
+    return this.deployments().filter(d => !d.containerName?.startsWith(SYSTEM_PREFIX));
+  });
 
   ngOnInit(): void {
     this.load();

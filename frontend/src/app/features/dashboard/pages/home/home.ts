@@ -2,6 +2,9 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ContainerService } from '../../../../core/services/container.service';
+import { AuthService } from '../../../../core/services/auth.service';
+
+const SYSTEM_PREFIX = 'cloudrower-';
 
 @Component({
   selector: 'app-home',
@@ -17,14 +20,18 @@ export class HomeComponent implements OnInit {
   loading = signal(true);
 
   private containerService = inject(ContainerService);
+  private authService = inject(AuthService);
 
   ngOnInit(): void {
     this.containerService.listContainers().subscribe({
       next: containers => {
-        const running = containers.filter(c => (c.status ?? '').toLowerCase().includes('up')).length;
-        this.totalContainers.set(containers.length);
+        const visible = this.authService.isAdmin()
+          ? containers
+          : containers.filter(c => !c.name.startsWith(SYSTEM_PREFIX));
+        const running = visible.filter(c => (c.status ?? '').toLowerCase().includes('up')).length;
+        this.totalContainers.set(visible.length);
         this.runningContainers.set(running);
-        this.stoppedContainers.set(containers.length - running);
+        this.stoppedContainers.set(visible.length - running);
         this.loading.set(false);
       },
       error: () => { this.loading.set(false); }

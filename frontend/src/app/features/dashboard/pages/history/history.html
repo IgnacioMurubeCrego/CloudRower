@@ -31,7 +31,7 @@
         <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
         <p class="text-gray-400 text-sm">Cargando histórico...</p>
       </div>
-    } @else if (deployments().length === 0) {
+    } @else if (visibleDeployments().length === 0) {
       <div class="p-12 text-center">
         <svg class="w-12 h-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -52,7 +52,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-50">
-          @for (dep of deployments(); track dep.id) {
+          @for (dep of visibleDeployments(); track dep.id) {
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="text-gray-700 font-medium">{{ dep.deployedAt | date:'dd/MM/yyyy' }}</span>
