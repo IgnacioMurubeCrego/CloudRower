@@ -1,0 +1,9 @@
+# Production overrides — applied by Ansible on EC2.
+# Do NOT use this file locally.
+services:
+  frontend:
+    ports:
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /home/ubuntu/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro

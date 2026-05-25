@@ -6,9 +6,12 @@
   vars:
     repo_dir: /home/ubuntu/CloudRower
     branch: develop
+    certbot_email: "{{ lookup('env', 'CERTBOT_EMAIL') }}"
+    domain: "cloudrower.{{ hostvars[inventory_hostname]['ansible_host'] }}.nip.io"
 
   tasks:
 
+    # ── Code ────────────────────────────────────────────────────────────────
     - name: Pull latest code from repository
       git:
         repo: https://github.com/IgnacioMurubeCrego/CloudRower.git
@@ -16,15 +19,62 @@
         version: "{{ branch }}"
         force: yes
 
-    - name: Stop existing containers
+    # ── Certbot ─────────────────────────────────────────────────────────────
+    - name: Install certbot
+      apt:
+        name: certbot
+        state: present
+        update_cache: yes
+      become: true
+
+    - name: Check if Let's Encrypt certificate already exists
+      stat:
+        path: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"
+      register: cert_stat
+      become: true
+
+    - name: Stop existing containers (needed to free port 80 for certbot)
       community.docker.docker_compose_v2:
         project_src: "{{ repo_dir }}"
+        files:
+          - docker-compose.yml
+          - docker-compose.prod.yml
         state: absent
       ignore_errors: yes
 
+    - name: Obtain Let's Encrypt certificate (first time only)
+      command: >
+        certbot certonly --standalone --non-interactive --agree-tos
+        --email {{ certbot_email }}
+        -d {{ domain }}
+      when: not cert_stat.stat.exists
+      become: true
+
+    - name: Deploy nginx SSL config from template
+      template:
+        src: templates/nginx-ssl.conf.j2
+        dest: /home/ubuntu/nginx-ssl.conf
+        mode: '0644'
+
+    - name: Set up certbot auto-renewal cron (every 15 days at 03:00)
+      cron:
+        name: certbot-renew-cloudrower
+        minute: "0"
+        hour: "3"
+        day: "*/15"
+        job: >
+          certbot renew --quiet
+          --pre-hook  "docker compose -f {{ repo_dir }}/docker-compose.yml -f {{ repo_dir }}/docker-compose.prod.yml down"
+          --post-hook "docker compose -f {{ repo_dir }}/docker-compose.yml -f {{ repo_dir }}/docker-compose.prod.yml up -d"
+      become: true
+
+    # ── Deploy ──────────────────────────────────────────────────────────────
     - name: Build and start containers
       community.docker.docker_compose_v2:
         project_src: "{{ repo_dir }}"
+        files:
+          - docker-compose.yml
+          - docker-compose.prod.yml
         build: always
         state: present
       environment:
@@ -33,6 +83,7 @@
         JWT_SECRET: "{{ lookup('env', 'JWT_SECRET') }}"
         ALLOWED_ORIGINS: "{{ lookup('env', 'ALLOWED_ORIGINS') }}"
 
+    # ── Verify ──────────────────────────────────────────────────────────────
     - name: Verify containers are running
       community.docker.docker_container_info:
         name: "{{ item }}"
