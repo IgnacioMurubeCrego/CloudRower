@@ -19,7 +19,7 @@ public class UserEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(255) NOT NULL DEFAULT 'USER'")
     private String role = "USER";
 
     public UserEntity() {}
