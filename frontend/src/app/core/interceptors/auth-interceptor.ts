@@ -13,7 +13,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError(err => {
-      if (err.status === 401 || err.status === 403) {
+      // Only redirect to login for expired/invalid sessions on authenticated routes.
+      // Auth routes (/api/auth/*) must handle their own errors (e.g. wrong password,
+      // duplicate email) without triggering a logout redirect.
+      const isAuthRoute = req.url.includes('/api/auth/');
+      if ((err.status === 401 || err.status === 403) && !isAuthRoute) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         router.navigate(['/auth/login']);
